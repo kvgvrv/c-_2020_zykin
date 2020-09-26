@@ -5,8 +5,14 @@ class Fraction {
 
 private:
 
+	int64_t numerator;
+	uint64_t denominator;
+
 	uint64_t gd(uint64_t a, uint64_t b) {
 		a = abs(a);
+		if (a == 0) {
+			return b;
+		}
 		if (a >= b) {
 			if (a % b == 0) {
 				return b;
@@ -39,9 +45,6 @@ private:
 
 
 public:
-
-	int64_t numerator;
-	uint64_t denominator;
 
 	Fraction() = delete;
 	Fraction(const Fraction& rhs) {
@@ -156,3 +159,11 @@ public:
 		return *this;
 	}
 };
+
+int main() {
+	Fraction x(5, 3), y(0, 1), c(1, 1);
+	x = y;
+	std::cout << "x is " << x.numerator << ":" << x.denominator << ", y is " << y.numerator <<":" << y.denominator
+			<< ", c is " << c.numerator << ":" << c.denominator << "\n";
+return 0;
+}
