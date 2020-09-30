@@ -1,27 +1,18 @@
-﻿#include <iostream>
+#include <iostream>
 #include <vector>
 
 
 /*
 int factorial(int x) {										// творческая петля,
-	if (x == 0) {											// не понадобилось внутри класса но все равно пусть будет 
+	if (x == 0) {											// не понадобилось внутри класса но все равно пусть будет
 		return 1;											// на память
-	}		
+	}
 	else {
 		return x * factorial(x - 1);
 	}
 }
-
 int combination(int a, int b) {
 	return factorial(a) / (factorial(b) * factorial(a - b));
-}
-
-double Binome(double* P1, double* P2, int n) {
-	double Q = 0;
-	for (int i = 0; i <= n; ++i) {
-		Q += *(P1 + n - i) * *(P2 + i);
-	}
-	return Q;
 } */
 
 class Poly {
@@ -148,7 +139,7 @@ public:
 		}
 	}
 
-	friend std::ostream& operator<<(std::ostream &stream, Poly rhs) {
+	friend std::ostream& operator<<(std::ostream& stream, Poly rhs) {
 		stream << *(rhs.C);
 		for (int i = 1; i < rhs.capacity; ++i) {
 			if (*(rhs.C + i) >= 0) {
@@ -176,31 +167,39 @@ public:
 		return result;
 	}
 
-	private:
+private:
 
-		double degree(double& x, int n) {
-			if (n == 0) {
-				return 1;
-			}
-			else {
-				return (x * degree(x, --n));
-			}
+	double* C;
+	int power, capacity;
+
+	double Binome(double* P1, double* P2, int n) {
+		double Q = 0;
+		for (int i = 0; i <= n; ++i) {
+			Q += *(P1 + n - i) * *(P2 + i);
 		}
+		return Q;
+	}
 
-		void copy(double* Poly1, double* Poly2, int size) {
-
-			for (int i = 0; i < size; ++i) {
-				*(Poly1 + i) = *(Poly2 + i);
-			}
+	double degree(double& x, int n) {
+		if (n == 0) {
+			return 1;
 		}
+		else {
+			return (x * degree(x, --n));
+		}
+	}
 
-		double* C;
-		int power, capacity;
+	void copy(double* Poly1, double* Poly2, int size) {
+
+		for (int i = 0; i < size; ++i) {
+			*(Poly1 + i) = *(Poly2 + i);
+		}
+	}
 };
 
 int main() {
-	std::vector<double> v1 = {-3, 2, 1, 3};
-	std::vector<double> v2 = { 1, -1, 2, 1};
+	std::vector<double> v1 = { -3, 2, 1, 3 };
+	std::vector<double> v2 = { 1, -1, 2, 1 };
 	Poly test1(v1), test2(v2);
 	std::cout << test1 << "; " << test1.integral(2, 24);
 
