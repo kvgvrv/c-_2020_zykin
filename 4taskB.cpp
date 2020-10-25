@@ -1,15 +1,16 @@
 #include <iostream>
 #include <string>
+#include <cmath>
 
 
 uint64_t grade(const uint64_t& x, const uint64_t& n) {
 	if (n == 0) {
 		return 1;
 	}
-	else {
-		n -= 1;
-		return x * grade(x, n);
+	if (n % 2 == 0) {
+		return grade(x * x, n / 2);
 	}
+	return x * grade(x * x, n / 2);
 }
 
 uint64_t Hash(const std::string& w) {
