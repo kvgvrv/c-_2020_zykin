@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <list>
 #include <vector>
 
@@ -15,22 +15,24 @@ int hash(const int& x, const int& n) {
 class Hash_table {
 private:
 	int size;
-	std::vector<std::list<std::pair<int, int>>> table;
+	std::list<std::pair<int, int>>* table;
 	int q;
 public:
 	Hash_table() {
 		size = 0;
 		q = 0;
-		table.resize(size);
+		table = new std::list<std::pair<int, int>>(size);
 	}
 
 	Hash_table(const int& n) {
 		size = n;
 		q = 0;
-		table.resize(size);
+		table = new std::list<std::pair<int, int>>(size);
 	}
 
-	~Hash_table() {}
+	~Hash_table() {
+		delete[] table;
+	}
 
 	void push(const int& key, const int& value) {
 		++q;
@@ -48,11 +50,11 @@ public:
 		}
 		if (q >= size * 0.75) {
 			int new_size = 2 * size;
-			std::vector<std::list<std::pair<int, int>>> new_table(new_size);
+			std::list<std::pair<int, int>>* new_table = new std::list<std::pair<int, int>>(new_size);
 			for (int i = 0; i < size; ++i) {
-				for (auto element = table[i].begin(); element != table[i].end(); {
+				for (auto element = table[i].begin(); element != table[i].end();) {
 					int index = hash(element->first, new_size);
-					new_table[index].push_back(*element);
+						new_table[index].push_back(*element);
 				}
 			}
 			table = new_table;
@@ -107,5 +109,5 @@ int main() {
 			data[index].get_value(key, value);
 		}
 	}
-return 0;
+	return 0;
 }
