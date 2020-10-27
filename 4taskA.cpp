@@ -15,30 +15,29 @@ int hash(const int& x, const int& n) {
 class Hash_table {
 private:
 	int size;
-	std::list<std::pair<int, int>>* table;
+	std::vector<std::list<std::pair<int, int>>> table;
 	int q;
 public:
 	Hash_table() {
 		size = 0;
 		q = 0;
-		table = new std::list<std::pair<int, int>>(size);
+		table.resize(size);
 	}
 
 	Hash_table(const int& n) {
 		size = n;
 		q = 0;
-		table = new std::list<std::pair<int, int>>(size);
+		table.resize(size);
 	}
 
 	~Hash_table() {
-		delete[] table;
 	}
 
 	void push(const int& key, const int& value) {
 		++q;
 		int index = hash(key, size);
 		bool search = 0;
-		for (auto element = table[index].begin(); element != table[index].end();) {
+		for (auto element = table[index].begin(); element != table[index].end(); ++element) {
 			if (element->first == key) {
 				element->second = value;
 				search = 1;
@@ -50,9 +49,9 @@ public:
 		}
 		if (q >= size * 0.75) {
 			int new_size = 2 * size;
-			std::list<std::pair<int, int>>* new_table = new std::list<std::pair<int, int>>(new_size);
+			std::vector<std::list<std::pair<int, int>>> new_table(new_size);
 			for (int i = 0; i < size; ++i) {
-				for (auto element = table[i].begin(); element != table[i].end();) {
+				for (auto element = table[i].begin(); element != table[i].end(); ++element) {
 					int index = hash(element->first, new_size);
 						new_table[index].push_back(*element);
 				}
@@ -64,7 +63,7 @@ public:
 	void pop(const int& key) {
 		--q;
 		int index = hash(key, size);
-		for (auto element = table[index].begin(); element != table[index].end();) {
+		for (auto element = table[index].begin(); element != table[index].end(); ++element) {
 			if (element->first == key) {
 				table[index].erase(element);
 				break;
@@ -88,6 +87,8 @@ public:
 };
 
 int main() {
+	std::ios_base::sync_with_stdio(false);
+	std::cin.tie(nullptr);
 	int N, M;
 	std::cin >> N >> M;
 	std::vector<Hash_table> data;
