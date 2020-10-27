@@ -34,7 +34,6 @@ public:
 	}
 
 	void push(const int& key, const int& value) {
-		++q;
 		int index = hash(key, size);
 		bool search = 0;
 		for (auto element = table[index].begin(); element != table[index].end(); ++element) {
@@ -45,6 +44,7 @@ public:
 			}
 		}
 		if (search == 0) {
+			++q;
 			table[index].push_back({ key, value });
 		}
 		if (q >= size * 0.75) {
