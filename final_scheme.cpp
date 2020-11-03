@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <vector>
 #include <map>
 #include <fstream>
@@ -9,7 +9,8 @@ class Scheme {
 
 public:
 
-	double t, T, h, L, cx, cy, N;
+	double t, T, h, L, cx, cy;
+	int N;
 	std::map<int, std::vector<std::vector<double>>> data;
 
 	void save_data() {
@@ -30,14 +31,14 @@ public:
 
 	void print_data() {
 		for (auto& c : data) {
-			std::cout << "T = " << c.first << "\n------------------------------------------------------------------------------------------------------------\n";
+			std::cout << "T = " << c.first << "\n------------------------------------------------------------------------------------------------------------------------\n";
 			for (int i = 0; i < N; ++i) {
 				for (int j = 0; j < N; ++j) {
 					std::cout << c.second[i][j] << " ";
 				}
 				std::cout << "\n";
 			}
-			std::cout << "--------------------------------------------------------------------------------------------------------------------\n";
+			std::cout << "------------------------------------------------------------------------------------------------------------------------\n";
 		}
 	}
 };
@@ -71,8 +72,10 @@ public:
 		if (cx * t / h < 1 && cy * t / h < 1) {
 			for (int q = 1; q < T; ++q) {
 				U_current[0][0] = U_previous[0][0];
-				U_current[1][0] = U_previous[0][0] - (cx * t / h) * (U_previous[1][0] - U_previous[0][0]);
-				U_current[0][1] = U_previous[0][0] - (cy * t / h) * (U_previous[0][1] - U_previous[0][0]);
+				for (int i = 1; i < N; ++i) {
+					U_current[i][0] = U_previous[0][0] - (cx * t / h) * (U_previous[i][0] - U_previous[0][0]);
+					U_current[0][i] = U_previous[0][0] - (cy * t / h) * (U_previous[0][i] - U_previous[0][0]);
+				}
 				for (int i = 1; i < N; ++i) {
 					for (int j = 1; j < N; ++j) {
 						U_current[i][j] = U_previous[i - 1][j - 1] - (cx * t / h) * (U_previous[i][j - 1] - U_previous[i - 1][j - 1])
@@ -84,7 +87,7 @@ public:
 						U_previous[i][j] = U_current[i][j];
 					}
 				}
-				if (q % 10 == 0) {
+				if (q % 1 == 0) {
 					std::vector<std::vector<double>> tmp(N);
 					for (int i = 0; i < N; ++i) {
 						tmp[i].resize(N);
@@ -102,8 +105,8 @@ public:
 
 	~CIR() {
 		for (int i = 0; i < N; ++i) {
-			delete[] U_current;
-			delete[] U_previous;
+			delete[] U_current[i];
+			delete[] U_previous[i];
 		}
 		delete[] U_current;
 		delete[] U_previous;
@@ -139,30 +142,41 @@ public:
 		if (cx * t / h < 1 && cy * t / h < 1) {
 			for (int q = 1; q < T; ++q) {
 				U_current[0][0] = U_previous[0][0];
-				U_current[1][0] = U_previous[0][0] - (cx * t / h) * (U_previous[1][0] - U_previous[0][0])
-					+ (cx * cx * t * t / (2 * h * h)) * (U_previous[2][0] - 2 * U_previous[1][0] + U_previous[0][0]);
-				U_current[1][0] = U_previous[0][0] - (cy * t / h) * (U_previous[1][0] - U_previous[0][0])
-					+ (cy * cy * t * t / (2 * h * h)) * (U_previous[0][2] - 2 * U_previous[0][1] + U_previous[0][0]);
-				for (int i = 1; i < N; ++i) {
+				for (int i = 1; i < N - 1; ++i) {
+					U_current[i][0] = U_previous[0][0] - (cx * t / h) * (U_previous[i][0] - U_previous[0][0])
+						+ (cx * cx * t * t / (2 * h * h)) * (U_previous[i + 1][0] - 2 * U_previous[i][0] + U_previous[0][0]);
+					U_current[0][i] = U_previous[0][0] - (cy * t / h) * (U_previous[0][i] - U_previous[0][0])
+						+ (cy * cy * t * t / (2 * h * h)) * (U_previous[0][i + 1] - 2 * U_previous[0][i] + U_previous[0][0]);
+				}
+				U_current[N - 1][0] = U_previous[0][N - 1];
+				U_current[0][N - 1] = U_previous[0][N - 1];
+				U_current[N - 1][N - 1] = U_previous[N - 1][N - 1];
+				for (int i = 1; i < N - 1; ++i) {
 					for (int j = 1; j < N; ++j) {
 						U_current[i][j] = U_previous[i - 1][j - 1] - (cx * t / h) * (U_previous[i][j - 1] - U_previous[i - 1][j - 1])
 							- (cy * t / h) * (U_previous[i - 1][j] - U_previous[i - 1][j - 1]) + (cx * cx * t * t / (2 * h * h)) * (
 								U_previous[i + 1][j - 1] - 2 * U_previous[i][j - 1] + U_previous[i - 1][j - 1]);
 					}
 				}
+				for (int i = 1; i < N - 1; ++i) {
+					U_current[i][N - 1] = U_previous[i - 1][N - 2] - (cx * t / h) * (U_previous[i][N - 2] - U_previous[i - 1][N - 2])
+						+ (cx * cx * t * t / (2 * h * h)) * (U_previous[i + 1][N - 2] - 2 * U_previous[i][N - 2] + U_previous[i - 1][N - 2]);
+					U_current[N - 1][i] = U_previous[N - 2][i - 1] - (cy * t / h) * (U_previous[N - 2][i] - U_previous[N - 2][i - 1])
+						+ (cy * cy * t * t / (2 * h * h)) * (U_previous[N - 2][i + 1] - 2 * U_previous[N - 2][i] + U_previous[N - 2][i - 1]);
+				}
 				for (int i = 0; i < N; ++i) {
 					for (int j = 0; j < N; ++j) {
 						U_previous[i][j] = U_current[i][j];
 					}
 				}
-				if (q % 10 == 0) {
+				if (q % 1 == 0) {
 					std::vector<std::vector<double>> tmp(N);
 					for (int i = 0; i < N; ++i) {
 						tmp[i].resize(N);
 					}
 					for (int i = 0; i < N; ++i) {
 						for (int j = 0; j < N; ++j) {
-							tmp[i][j] = U_current[i][j];
+							tmp[i][j] = U_previous[i][j];
 						}
 					}
 					data[q * t] = tmp;
@@ -173,8 +187,8 @@ public:
 
 	~LW() {
 		for (int i = 0; i < N; ++i) {
-			delete[] U_current;
-			delete[] U_previous;
+			delete[] U_current[i];
+			delete[] U_previous[i];
 		}
 		delete[] U_current;
 		delete[] U_previous;
@@ -189,6 +203,11 @@ int main() {
 	std::vector<std::vector<double>> v(N);
 	for (int i = 0; i < N; ++i) {
 		v[i].resize(N);
+	}
+	for (int i = 0; i < N; ++i) {
+		for (int j = 0; j < N; ++j) {
+			v[i][j] = rand() % 3;
+		}
 	}
 	CIR magic(v, time_step, T, step, L, cx, cy);
 	magic.print_data();
