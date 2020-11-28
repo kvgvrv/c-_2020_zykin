@@ -18,12 +18,12 @@ bool DFS(std::vector<branch>& tree, int i, int big, int smoll) {
 			return DFS(tree, tree[i].left, tree[i].value, smoll);	//если заходим в левый узел, меняем верхнюю границу
 		}
 	}
-	if (tree[i].right != -1) {		//если заходим в правый узел, меняем нижнюю границу
+	if (tree[i].right != -1) {		
 		if (tree[tree[i].right].value < tree[i].value or tree[tree[i].right].value > big) {
 			return 0;
 		}
-		else {
-			return DFS(tree, tree[i].right, big, tree[i].value);
+		else {		
+			return DFS(tree, tree[i].right, big, tree[i].value);		//если заходим в правый узел, меняем нижнюю границу
 		}
 	}
 	if (i == 0) {
